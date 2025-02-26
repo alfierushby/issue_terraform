@@ -6,6 +6,7 @@ variable "access_key" {
     condition     = length(var.access_key) > 0
     error_message = "Access key cannot be empty"
   }
+  sensitive = true
 }
 
 variable "secret_key" {
@@ -16,6 +17,7 @@ variable "secret_key" {
     condition     = length(var.secret_key) > 0
     error_message = "Secret key cannot be empty"
   }
+  sensitive = true
 }
 
 variable "region" {
