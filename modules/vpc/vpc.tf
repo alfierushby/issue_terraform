@@ -15,6 +15,7 @@ data "aws_availability_zones" "available" {
 
 module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
+  version = "5.19.0"
 
   name = "my-vpc"
   cidr = "10.0.0.0/16"
@@ -33,10 +34,14 @@ module "vpc" {
   private_subnet_tags ={
     "kubernetes.io/role/internal-elb" = 1
   }
+  intra_subnet_tags = {
+    "control_plane" = 1
+  }
 }
 
 module "internal_sg" {
   source = "terraform-aws-modules/security-group/aws"
+  version = "5.3.0"
 
   name        = "internal"
   description = "Allow all internal ping traffic"
