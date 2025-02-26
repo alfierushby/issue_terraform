@@ -1,11 +1,11 @@
 locals{
   az_count = length(data.aws_availability_zones.available.names) > 2 ? 3 : 2
   private_subnets = [for index in range(local.az_count):
-             cidrsubnet(var.cidr_block, 8, index)]
+             cidrsubnet(var.cidr_block, 4, index)]
   public_subnets = [for index in range(local.az_count):
-             cidrsubnet(var.cidr_block, 8, index+local.az_count)]
-  infra_subnets = [for index in range(local.az_count):
-             cidrsubnet(var.cidr_block, 8, index+local.az_count*2)]
+             cidrsubnet(var.cidr_block, 8, index+48)]
+  intra_subnets = [for index in range(local.az_count):
+             cidrsubnet(var.cidr_block, 8, index+54)]
 }
 
 data "aws_availability_zones" "available" {
@@ -20,10 +20,10 @@ module "vpc" {
   name = "my-vpc"
   cidr = "10.0.0.0/16"
 
-  azs             = data.aws_availability_zones.available.names
+  azs             = slice(data.aws_availability_zones.available.names,0,3)
   private_subnets = local.private_subnets
   public_subnets  = local.public_subnets
-  intra_subnets = local.infra_subnets
+  intra_subnets = local.intra_subnets
 
   enable_nat_gateway = false
   enable_dns_hostnames = true

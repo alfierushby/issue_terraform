@@ -54,15 +54,13 @@ resource "aws_iam_policy" "ecr" {
 }
 
 
-
-
 # module "iam_eks_role" {
 #   source = "terraform-aws-modules/iam/aws//modules/iam-eks-role"
 #   version = "5.52.2"
 #   role_name = "role_eks"
 
 #   cluster_service_accounts = {
-#     "cluster1" = ["default:my-serviceaccount"]
+#     "cluster1" = ["kube_system:serviceaccount:alfie:role_eks"]
 #   }
 
 #    role_policy_arns = {
@@ -76,7 +74,7 @@ resource "aws_iam_policy" "ecr" {
 #   role_name = "iam_eks_role_lb_controller"
 
 #   cluster_service_accounts = {
-#     "cluster1" = ["default:my-serviceaccount"]
+#     "cluster1" = ["kube_system:serviceaccount:alfie:load_balancer_controller"]
 #   }
 
 #    role_policy_arns = {
@@ -91,7 +89,7 @@ resource "aws_iam_policy" "ecr" {
 #   role_name = "external_dns"
 
 #   cluster_service_accounts = {
-#     "cluster1" = ["default:my-serviceaccount"]
+#     "cluster1" = ["kube_system:serviceaccount:alfie:external_dns"]
 #   }
 
 #    role_policy_arns = {
@@ -105,7 +103,7 @@ resource "aws_iam_policy" "ecr" {
 #   role_name = "ebs_csi_role"
 
 #   cluster_service_accounts = {
-#     "cluster1" = ["default:my-serviceaccount"]
+#     "cluster1" = ["kube_system:serviceaccount:alfie:csi_ebs"]
 #   }
 
 #    role_policy_arns = {
@@ -119,10 +117,10 @@ resource "aws_iam_policy" "ecr" {
 #   role_name = "sqs_role"
 
 #   cluster_service_accounts = {
-#     "cluster1" = ["default:my-serviceaccount"]
+#     "cluster1" = ["kube_system:serviceaccount:alfie:sqs"]
 #   }
 
 #    role_policy_arns = {
-#     AmazonEKS_CNI_Policy = var.sqs_arn
+#     AmazonEKS_CNI_Policy = var.sqs_policy_arn
 #   }
 # }
