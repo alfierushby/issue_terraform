@@ -53,7 +53,7 @@ resource "aws_iam_policy" "dns" {
   policy = data.aws_iam_policy_document.dns.json
 }
 
-resource "aws_iam_policy" "ebs" {
+resource "aws_iam_policy" "ebs_csi" {
   name        = "EBS-CSI-Driver"
   description = "     Allows managing EBS storage for EKS. "
   policy = data.aws_iam_policy_document.ebs_csi.json
@@ -72,3 +72,74 @@ resource "aws_iam_policy" "sqs" {
   policy = data.aws_iam_policy_document.sqs.json
 }
 
+
+# module "iam_eks_role" {
+#   source = "terraform-aws-modules/iam/aws//modules/iam-eks-role"
+#   version = "5.52.2"
+#   role_name = "role_eks"
+
+#   cluster_service_accounts = {
+#     "cluster1" = ["default:my-serviceaccount"]
+#   }
+
+#    role_policy_arns = {
+#     AmazonEKS_CNI_Policy = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+#   }
+# }
+
+# module "iam_eks_role_lb" {
+#   source = "terraform-aws-modules/iam/aws//modules/iam-eks-role"
+#   version = "5.52.2"
+#   role_name = "iam_eks_role_lb_controller"
+
+#   cluster_service_accounts = {
+#     "cluster1" = ["default:my-serviceaccount"]
+#   }
+
+#    role_policy_arns = {
+#     AmazonEKS_CNI_Policy = "arn:aws:iam::aws:policy/AmazonEKSLoadBalancingPolicy"
+#   }
+# }
+
+
+# module "iam_eks_role_external_dns" {
+#   source = "terraform-aws-modules/iam/aws//modules/iam-eks-role"
+#   version = "5.52.2"
+#   role_name = "external_dns"
+
+#   cluster_service_accounts = {
+#     "cluster1" = ["default:my-serviceaccount"]
+#   }
+
+#    role_policy_arns = {
+#     AmazonEKS_CNI_Policy = aws_iam_policy.dns.arn
+#   }
+# }
+
+# module "iam_eks_role_ebs_csi" {
+#   source = "terraform-aws-modules/iam/aws//modules/iam-eks-role"
+#   version = "5.52.2"
+#   role_name = "ebs_csi_role"
+
+#   cluster_service_accounts = {
+#     "cluster1" = ["default:my-serviceaccount"]
+#   }
+
+#    role_policy_arns = {
+#     AmazonEKS_CNI_Policy = aws_iam_policy.ebs_csi.arn
+#   }
+# }
+
+# module "iam_eks_role_sqs" {
+#   source = "terraform-aws-modules/iam/aws//modules/iam-eks-role"
+#   version = "5.52.2"
+#   role_name = "sqs_role"
+
+#   cluster_service_accounts = {
+#     "cluster1" = ["default:my-serviceaccount"]
+#   }
+
+#    role_policy_arns = {
+#     AmazonEKS_CNI_Policy = aws_iam_policy.sqs.arn
+#   }
+# }
