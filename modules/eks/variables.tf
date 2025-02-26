@@ -23,3 +23,8 @@ variable cluster_name{
     type = string
     default = "issue_creator_eks_cluster"
 }
+
+variable ebs_csi_role_arn{
+    description = "ARN for the EBS CSI role to give access to EBS in AWS"
+    type = string
+}

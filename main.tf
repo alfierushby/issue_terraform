@@ -19,4 +19,5 @@ module "eks" {
   public_subnet_ids = module.vpc.public_subnet_ids
   intra_subnet_ids = module.vpc.intra_subnet_ids
   vpc_id = module.vpc.vpc_id
+  ebs_csi_role_arn = module.iam.ebs_csi_role_arn
 }

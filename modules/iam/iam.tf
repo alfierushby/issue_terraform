@@ -97,19 +97,19 @@ resource "aws_iam_policy" "ecr" {
 #   }
 # }
 
-# module "iam_eks_role_ebs_csi" {
-#   source = "terraform-aws-modules/iam/aws//modules/iam-eks-role"
-#   version = "5.52.2"
-#   role_name = "ebs_csi_role"
+module "iam_eks_role_ebs_csi" {
+  source = "terraform-aws-modules/iam/aws//modules/iam-eks-role"
+  version = "5.52.2"
+  role_name = "ebs_csi_role"
 
-#   cluster_service_accounts = {
-#     "cluster1" = ["kube_system:serviceaccount:alfie:csi_ebs"]
-#   }
+  cluster_service_accounts = {
+    "cluster1" = ["kube_system:serviceaccount:alfie:ebs_csi"]
+  }
 
-#    role_policy_arns = {
-#     AmazonEKS_CNI_Policy = aws_iam_policy.ebs_csi.arn
-#   }
-# }
+   role_policy_arns = {
+    AmazonEKS_CNI_Policy = aws_iam_policy.ebs_csi.arn
+  }
+}
 
 # module "iam_eks_role_sqs" {
 #   source = "terraform-aws-modules/iam/aws//modules/iam-eks-role"
