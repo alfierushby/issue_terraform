@@ -34,18 +34,6 @@ data "aws_iam_policy_document" "ecr" {
   }
 }
 
-data "aws_iam_policy_document" "sqs" {
-  statement {
-    actions   = ["sqs:ListQueues"]
-    resources = ["*"]
-    effect = "Allow"
-  }
-   statement {
-    actions   = ["sqs:SendMessage","sqs:ReceiveMessage","sqs:DeleteMessage"]
-    resources = ["arn:aws:sqs:*:${data.aws_caller_identity.current.account_id}:*"]
-    effect = "Allow"
-  }
-}
 
 resource "aws_iam_policy" "dns" {
   name        = "External-DNS"
@@ -66,11 +54,6 @@ resource "aws_iam_policy" "ecr" {
 }
 
 
-resource "aws_iam_policy" "sqs" {
-  name        = "SQS-Access"
-  description = "Grants access to SQS queues."
-  policy = data.aws_iam_policy_document.sqs.json
-}
 
 
 # module "iam_eks_role" {
@@ -140,6 +123,6 @@ resource "aws_iam_policy" "sqs" {
 #   }
 
 #    role_policy_arns = {
-#     AmazonEKS_CNI_Policy = aws_iam_policy.sqs.arn
+#     AmazonEKS_CNI_Policy = var.sqs_arn
 #   }
 # }

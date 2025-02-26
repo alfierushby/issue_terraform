@@ -5,5 +5,9 @@ module "vpc" {
 
 module "iam" {
   source = "./modules/iam"
+  sqs_policy_arn = module.sqs.sqs_policy_arn
+}
 
+module "sqs"{
+    source = "./modules/sqs"
 }
