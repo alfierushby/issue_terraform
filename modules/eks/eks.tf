@@ -16,6 +16,8 @@ module "eks"{
     # Enable public access
     cluster_endpoint_public_access = true
 
+    enable_irsa = true
+
     
     cluster_addons = {
         coredns                = {
@@ -32,5 +34,26 @@ module "eks"{
             service_account_role_arn = var.ebs_csi_role_arn
         }
     }
+
+    eks_managed_node_groups = {
+        for index,v in var.node_group_settings: "node${index}" => {
+            ami_type       = "AL2023_x86_64_STANDARD"
+            instance_types = [v.instance_type]
+            subnet_ids = [var.private_subnet_ids[index]]
+
+            min_size     = v.min_size
+            max_size     = v.max_size
+            desired_size = v.desired_size
+            iam_role_additional_policies = {
+               policy1= "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+               policy2= var.ecr_read_policy_arn
+            }
+            launch_template = {
+                root_volume_type = "gp2"
+                root_volume_ize = 20
+            }           
+        }
+  }
+
 
 }

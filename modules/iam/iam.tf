@@ -34,6 +34,32 @@ data "aws_iam_policy_document" "ecr" {
   }
 }
 
+data "aws_iam_policy_document" "sqs_read" {
+  statement {
+    actions   = ["sqs:ListQueues"]
+    resources = ["*"]
+    effect = "Allow"
+  }
+   statement {
+    actions   = ["sqs:SendMessage","sqs:ReceiveMessage","sqs:DeleteMessage","sqs:GetQueueAttributes"]
+    resources = var.sqs_queue_arns
+    effect = "Allow"
+  }
+}
+
+data "aws_iam_policy_document" "sqs_write" {
+  statement {
+    actions   = ["sqs:ListQueues"]
+    resources = ["*"]
+    effect = "Allow"
+  }
+   statement {
+    actions   = ["sqs:SendMessage","sqs:GetQueueAttributes"]
+    resources = var.sqs_queue_arns
+    effect = "Allow"
+  }
+}
+
 
 resource "aws_iam_policy" "dns" {
   name        = "External-DNS"
@@ -53,6 +79,19 @@ resource "aws_iam_policy" "ecr" {
   policy = data.aws_iam_policy_document.ecr.json
 }
 
+
+resource "aws_iam_policy" "sqs_read" {
+  name        = "SQS-Access"
+  description = "Grants read access to SQS queues."
+  policy = data.aws_iam_policy_document.sqs_read.json
+}
+
+
+resource "aws_iam_policy" "sqs_write" {
+  name        = "SQS-Access"
+  description = "Grants write access to SQS queues."
+  policy = data.aws_iam_policy_document.sqs_write.json
+}
 
 # module "iam_eks_role" {
 #   source = "terraform-aws-modules/iam/aws//modules/iam-eks-role"
@@ -98,29 +137,62 @@ resource "aws_iam_policy" "ecr" {
 # }
 
 module "iam_eks_role_ebs_csi" {
-  source = "terraform-aws-modules/iam/aws//modules/iam-eks-role"
-  version = "5.52.2"
+  source    = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
   role_name = "ebs_csi_role"
 
-  cluster_service_accounts = {
-    "cluster1" = ["kube_system:serviceaccount:alfie:ebs_csi"]
+  role_policy_arns = {
+    AmazonEKS_CNI_Policy = aws_iam_policy.ebs_csi.arn
   }
 
-   role_policy_arns = {
-    AmazonEKS_CNI_Policy = aws_iam_policy.ebs_csi.arn
+  oidc_providers = {
+    one = {
+      provider_arn               = var.oidc_provider_arn
+      namespace_service_accounts = ["kube_system:serviceaccount:alfie:ebs_csi"]
+    }
   }
 }
 
-# module "iam_eks_role_sqs" {
+
+# module "iam_eks_role_ebs_csi" {
 #   source = "terraform-aws-modules/iam/aws//modules/iam-eks-role"
 #   version = "5.52.2"
-#   role_name = "sqs_role"
+#   role_name = "ebs_csi_role"
 
 #   cluster_service_accounts = {
-#     "cluster1" = ["kube_system:serviceaccount:alfie:sqs"]
+#     "cluster1" = ["kube_system:serviceaccount:alfie:ebs_csi"]
 #   }
 
 #    role_policy_arns = {
-#     AmazonEKS_CNI_Policy = var.sqs_policy_arn
+#     AmazonEKS_CNI_Policy = aws_iam_policy.ebs_csi.arn
 #   }
 # }
+
+# module "iam_eks_role_sqs_read" {
+#   source = "terraform-aws-modules/iam/aws//modules/iam-eks-role"
+#   version = "5.52.2"
+#   role_name = "sqs_role_read"
+
+#   cluster_service_accounts = {
+#     "cluster1" = ["kube_system:serviceaccount:alfie:sqs_read"]
+#   }
+
+#    role_policy_arns = {
+#     AmazonEKS_CNI_Policy = aws_iam_policy.sqs_read.arn
+#   }
+# }
+
+
+# module "iam_eks_role_sqs_write" {
+#   source = "terraform-aws-modules/iam/aws//modules/iam-eks-role"
+#   version = "5.52.2"
+#   role_name = "sqs_role_write"
+
+#   cluster_service_accounts = {
+#     "cluster1" = ["kube_system:serviceaccount:alfie:sqs_write"]
+#   }
+
+#    role_policy_arns = {
+#     AmazonEKS_CNI_Policy = aws_iam_policy.sqs_write.arn
+#   }
+# }
+

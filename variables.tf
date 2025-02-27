@@ -1,25 +1,3 @@
-variable "access_key" {
-  description = "Access Key for AWS"
-  type        = string
-  default     = ""
-  validation {
-    condition     = length(var.access_key) > 0
-    error_message = "Access key cannot be empty"
-  }
-  sensitive = true
-}
-
-variable "secret_key" {
-  description = "Secret Key for AWS"
-  type        = string
-  default     = ""
-  validation {
-    condition     = length(var.secret_key) > 0
-    error_message = "Secret key cannot be empty"
-  }
-  sensitive = true
-}
-
 variable "region" {
   description = "Region of AWS"
   type        = string
