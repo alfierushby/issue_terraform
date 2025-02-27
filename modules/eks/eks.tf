@@ -56,20 +56,3 @@ module "eks" {
         }
     }
 }
-
-locals {
-  service_acounts = toset(["role-eks","ebs-external-dns-csi","lb-controller","ebs-csi","sqs-read","sqs-write"])
-}
-
-resource "kubernetes_namespace" "alfie" {
-  metadata {
-    name = var.namespace_name
-  }
-}
-resource "kubernetes_service_account" "cluster" {
-  for_each = local.service_acounts
-  metadata {
-    name      = each.value
-    namespace =  var.namespace_name
-  }
-}

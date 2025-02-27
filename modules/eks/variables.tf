@@ -48,5 +48,5 @@ variable ecr_read_policy_arn{
 variable namespace_name{
     description = "Name of namespace"
     type = string
-    default = "kube_system"
+    default = "kube-system"
 }
