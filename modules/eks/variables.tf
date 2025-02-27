@@ -44,3 +44,9 @@ variable ecr_read_policy_arn{
     description = "The ARN of the ECR read policy"
     type = string
 }
+
+variable namespace_name{
+    description = "Name of namespace"
+    type = string
+    default = "kube_system"
+}

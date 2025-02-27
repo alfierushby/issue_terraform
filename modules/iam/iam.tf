@@ -104,7 +104,7 @@ module "iam_eks_role" {
   oidc_providers = {
     one = {
       provider_arn               = var.oidc_provider_arn
-      namespace_service_accounts = ["kube_system:serviceaccount:alfie:role_eks"]
+      namespace_service_accounts = ["kube_system:serviceaccount:role-eks"]
     }
   }
 } 
@@ -118,7 +118,7 @@ module "iam_eks_role_lb" {
   oidc_providers = {
     one = {
       provider_arn               = var.oidc_provider_arn
-      namespace_service_accounts = ["kube_system:serviceaccount:alfie:ebs_external_dns_csi"]
+      namespace_service_accounts = ["kube_system:serviceaccount:lb-controller"]
     }
   }
 }
@@ -134,7 +134,7 @@ module "iam_eks_role_external_dns" {
   oidc_providers = {
     one = {
       provider_arn               = var.oidc_provider_arn
-      namespace_service_accounts = ["kube_system:serviceaccount:alfie:ebsexternal_dns_csi"]
+      namespace_service_accounts = ["kube_system:serviceaccount:ebs-external-dns-csi"]
     }
   }
 }
@@ -150,7 +150,7 @@ module "iam_eks_role_ebs_csi" {
   oidc_providers = {
     one = {
       provider_arn               = var.oidc_provider_arn
-      namespace_service_accounts = ["kube_system:serviceaccount:alfie:ebs_csi"]
+      namespace_service_accounts = ["kube_system:serviceaccount:ebs-csi"]
     }
   }
 }
@@ -166,7 +166,7 @@ module "iam_eks_role_sqs_read" {
   oidc_providers = {
     one = {
       provider_arn               = var.oidc_provider_arn
-      namespace_service_accounts = ["kube_system:serviceaccount:alfie:sqs_read"]
+      namespace_service_accounts = ["kube_system:serviceaccount:sqs-read"]
     }
   }
 }
@@ -182,7 +182,7 @@ module "iam_eks_role_sqs_write" {
   oidc_providers = {
     one = {
       provider_arn               = var.oidc_provider_arn
-      namespace_service_accounts = ["kube_system:serviceaccount:alfie:sqs_write"]
+      namespace_service_accounts = ["kube_system:serviceaccount:sqs-write"]
     }
   }
 }
