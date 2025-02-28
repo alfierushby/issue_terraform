@@ -16,9 +16,6 @@ module "eks" {
     enable_cluster_creator_admin_permissions = true
     # Enable public access
     cluster_endpoint_public_access = true
-
-    enable_irsa = true
-
     
     cluster_addons = {
         coredns                = {
@@ -61,7 +58,7 @@ module "eks" {
             }
 
             labels = {
-                "managed_by" = "terraform"
+                "managed-by" = "terraform"
                 "k8s-app" = "alfie-app-issue-reporter"
             }
         }
