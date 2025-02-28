@@ -55,6 +55,15 @@ module "eks" {
                 root_volume_type = "gp3"
                 root_volume_size = 20
             }           
+
+            tags = {
+                "name" = "${var.cluster_name}"
+            }
+
+            labels = {
+                "managed_by" = "terraform"
+                "k8s-app" = "alfie-app-issue-reporter"
+            }
         }
     }
 }
