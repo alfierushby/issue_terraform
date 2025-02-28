@@ -54,7 +54,7 @@ module "eks" {
             }           
 
             tags = {
-                "name" = "${var.cluster_name}"
+                "Name" = "${var.cluster_name}-node${index}"
             }
 
             labels = {
