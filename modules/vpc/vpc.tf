@@ -17,7 +17,7 @@ module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
   version = "5.19.0"
 
-  name = "my-vpc"
+  name = "alfie-vpc"
   cidr = "10.0.0.0/16"
 
   azs             = slice(data.aws_availability_zones.available.names,0,3)
@@ -27,6 +27,7 @@ module "vpc" {
 
   enable_nat_gateway = true
   enable_dns_hostnames = true
+  single_nat_gateway = true
 
   public_subnet_tags = {
     "kubernetes.io/cluster/${var.cluster_name}" = "shared"
@@ -36,7 +37,7 @@ module "vpc" {
   private_subnet_tags ={
     "kubernetes.io/cluster/${var.cluster_name}" = "shared"
     "kubernetes.io/role/internal-elb" = 1
-    Name                              = "${var.cluster_name}-public"
+    Name                     = "${var.cluster_name}-private"
   }
   intra_subnet_tags = {
     Name = "${var.cluster_name}-intra"
@@ -67,11 +68,10 @@ module "internal_sg" {
       description = "User-service ports"
       cidr_blocks = var.cidr_block
     },
-      {
+    {
       rule        = "all-icmp"
       cidr_blocks = var.cidr_block
     },
   ]
   egress_rules = ["http-80-tcp","https-443-tcp"]
-
 }

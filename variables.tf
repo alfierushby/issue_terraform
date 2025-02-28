@@ -11,3 +11,9 @@ variable "region" {
     error_message = "Region key must be eu-north-1"
   }
 }
+
+variable cluster_name{
+    description = "Cluster name of EKS cluster"
+    type = string
+    default = "alfie-issue-creator-cluster"
+}

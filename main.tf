@@ -1,7 +1,7 @@
 module "vpc" {
   source       = "./modules/vpc"
   region       = var.region
-  cluster_name = module.eks.cluster_name
+  cluster_name = var.cluster_name
 }
 
 module "iam" {
@@ -22,4 +22,5 @@ module "eks" {
   vpc_id              = module.vpc.vpc_id
   ebs_csi_role_arn    = module.iam.ebs_csi_role_arn
   ecr_read_policy_arn = module.iam.ecr_read_policy
+  cluster_name = var.cluster_name
 }

@@ -1,26 +1,5 @@
 data "aws_caller_identity" "current" {}
 
-data "aws_iam_policy_document" "dns" {
-  statement {
-    actions   = ["route53:ListHostedZones"]
-    resources = ["arn:aws:route53:::hostedzone/*"]
-    effect = "Allow"
-  }
-  statement {
-    actions   = ["route53:ListHostedZones","route53:ChangeResourceRecordSets","route53:ListResourceRecordSets"]
-    resources = ["*"]
-    effect = "Allow"
-  }
-}
-
-data "aws_iam_policy_document" "ebs_csi" {
-  statement {
-    actions   = ["ec2:CreateVolume","ec2:DeleteVolume","ec2:AttachVolume","ec2:DetachVolume","ec2:DescribeVolumes"]
-    resources = ["*"]
-    effect = "Allow"
-  }
-}
-
 data "aws_iam_policy_document" "ecr" {
   statement {
     actions   = ["ecr:GetAuthorizationToken"]
@@ -60,35 +39,22 @@ data "aws_iam_policy_document" "sqs_write" {
   }
 }
 
-
-resource "aws_iam_policy" "dns" {
-  name        = "External-DNS"
-  description = " Grants Route 53 permissions for managing DNS records."
-  policy = data.aws_iam_policy_document.dns.json
-}
-
-resource "aws_iam_policy" "ebs_csi" {
-  name        = "EBS-CSI-Driver"
-  description = "     Allows managing EBS storage for EKS. "
-  policy = data.aws_iam_policy_document.ebs_csi.json
-}
-
 resource "aws_iam_policy" "ecr" {
-  name        = "ECR-Access"
+  name        = "Alfie-ECR-Access"
   description = "Grants permissions to pull container images from AWS ECR."
   policy = data.aws_iam_policy_document.ecr.json
 }
 
 
 resource "aws_iam_policy" "sqs_read" {
-  name        = "SQS-Write-Access"
+  name        = "Alfie-SQS-Write-Access"
   description = "Grants read access to SQS queues."
   policy = data.aws_iam_policy_document.sqs_read.json
 }
 
 
 resource "aws_iam_policy" "sqs_write" {
-  name        = "SQS-Read-Access"
+  name        = "Alfie-SQS-Read-Access"
   description = "Grants write access to SQS queues."
   policy = data.aws_iam_policy_document.sqs_write.json
 }
@@ -104,10 +70,28 @@ module "iam_eks_role" {
   oidc_providers = {
     one = {
       provider_arn               = var.oidc_provider_arn
-      namespace_service_accounts = ["kube-system:serviceaccount:role-eks"]
+      namespace_service_accounts = ["alfie:role-eks"]
     }
   }
 } 
+
+
+module "iam_eks_role_ecr" {
+  source    = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  role_name = "alfie-role-ecr"
+
+    role_policy_arns = {
+    AmazonEKS_CNI_Policy = aws_iam_policy.ecr.arn
+  }
+
+  oidc_providers = {
+    one = {
+      provider_arn               = var.oidc_provider_arn
+      namespace_service_accounts = ["alfie:ecr"]
+    }
+  }
+}
+
 
 module "iam_eks_role_lb" {
   source    = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
@@ -118,7 +102,7 @@ module "iam_eks_role_lb" {
   oidc_providers = {
     one = {
       provider_arn               = var.oidc_provider_arn
-      namespace_service_accounts = ["kube-system:serviceaccount:lb-controller"]
+      namespace_service_accounts = ["alfie:lb-controller"]
     }
   }
 }
@@ -127,14 +111,13 @@ module "iam_eks_role_external_dns" {
   source    = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
   role_name = "alfie-external_dns"
 
-  role_policy_arns = {
-    AmazonEKS_CNI_Policy = aws_iam_policy.dns.arn
-  }
+  attach_external_dns_policy = true
+  
 
   oidc_providers = {
     one = {
       provider_arn               = var.oidc_provider_arn
-      namespace_service_accounts = ["kube-system:serviceaccount:ebs-external-dns-csi"]
+      namespace_service_accounts = ["alfie:ebs-external-dns-csi"]
     }
   }
 }
@@ -143,14 +126,12 @@ module "iam_eks_role_ebs_csi" {
   source    = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
   role_name = "alfie-ebs_csi_role"
 
-  role_policy_arns = {
-    AmazonEKS_CNI_Policy = aws_iam_policy.ebs_csi.arn
-  }
+  attach_ebs_csi_policy=true
 
   oidc_providers = {
     one = {
       provider_arn               = var.oidc_provider_arn
-      namespace_service_accounts = ["kube-system:serviceaccount:ebs-csi"]
+      namespace_service_accounts = ["alfie:ebs-csi"]
     }
   }
 }
@@ -166,7 +147,7 @@ module "iam_eks_role_sqs_read" {
   oidc_providers = {
     one = {
       provider_arn               = var.oidc_provider_arn
-      namespace_service_accounts = ["kube-system:serviceaccount:sqs-read"]
+      namespace_service_accounts = ["alfie:sqs-read"]
     }
   }
 }
@@ -182,7 +163,7 @@ module "iam_eks_role_sqs_write" {
   oidc_providers = {
     one = {
       provider_arn               = var.oidc_provider_arn
-      namespace_service_accounts = ["kube-system:serviceaccount:sqs-write"]
+      namespace_service_accounts = ["alfie:sqs-write"]
     }
   }
 }

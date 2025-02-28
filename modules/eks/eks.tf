@@ -4,7 +4,7 @@ module "eks" {
     version = "~> 20.31"
 
     cluster_name    = var.cluster_name
-    cluster_version = "1.31"
+    cluster_version = "1.32"
 
     subnet_ids = var.private_subnet_ids
     control_plane_subnet_ids = var.intra_subnet_ids
@@ -45,13 +45,15 @@ module "eks" {
             min_size     = v.min_size
             max_size     = v.max_size
             desired_size = v.desired_size
+
             iam_role_additional_policies = {
                policy1= "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
                policy2= var.ecr_read_policy_arn
             }
+
             launch_template = {
-                root_volume_type = "gp2"
-                root_volume_ize = 20
+                root_volume_type = "gp3"
+                root_volume_size = 20
             }           
         }
     }
