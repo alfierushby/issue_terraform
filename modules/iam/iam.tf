@@ -26,6 +26,22 @@ data "aws_iam_policy_document" "sqs_read" {
   }
 }
 
+data "aws_iam_policy_document" "bedrock_invoke" {
+  statement {
+    actions   = ["bedrock:InvokeModel","bedrock:InvokeModelWithResponseStream", "bedrock:CreateModelInvocationJob"]
+    resources = ["arn:aws:bedrock:*::foundation-model/amazon.titan-text-express-v1"]
+    effect = "Allow"
+  }
+}
+
+data "aws_iam_policy_document" "ses_email" {
+  statement {
+    actions   = ["ses:SendEmail","ses:SendRawEmail","ses:SendTemplatedEmail"]
+    resources = ["*"]
+    effect = "Allow"
+  }
+}
+
 data "aws_iam_policy_document" "sqs_write" {
   statement {
     actions   = ["sqs:ListQueues"]
@@ -53,11 +69,24 @@ resource "aws_iam_policy" "sqs_read" {
 }
 
 
+resource "aws_iam_policy" "ses_email" {
+  name        = "Alfie-SES-Email-Access"
+  description = "Grants email access to SES."
+  policy = data.aws_iam_policy_document.ses_email.json
+}
+
+resource "aws_iam_policy" "bedrock_invoke" {
+  name        = "Alfie-Bedrock-Invoke"
+  description = "Grants bedrock invoke access."
+  policy = data.aws_iam_policy_document.bedrock_invoke.json
+}
+
 resource "aws_iam_policy" "sqs_write" {
   name        = "Alfie-SQS-Read-Access"
   description = "Grants write access to SQS queues."
   policy = data.aws_iam_policy_document.sqs_write.json
 }
+
 
 module "iam_eks_role" {
   source    = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
@@ -85,7 +114,7 @@ module "iam_eks_role_lb" {
   oidc_providers = {
     one = {
       provider_arn               = var.oidc_provider_arn
-      namespace_service_accounts = ["alfie:lb-controller"]
+      namespace_service_accounts = ["kube-system:aws-load-balancer-controller"]
     }
   }
 }
@@ -100,7 +129,7 @@ module "iam_eks_role_external_dns" {
   oidc_providers = {
     one = {
       provider_arn               = var.oidc_provider_arn
-      namespace_service_accounts = ["alfie:ebs-external-dns-csi"]
+      namespace_service_accounts = ["kube-system:ebs-external-dns-csi"]
     }
   }
 }
@@ -119,12 +148,33 @@ module "iam_eks_role_ebs_csi" {
   }
 }
 
+
+module "iam_eks_role_ses_sqs_read" {
+  source    = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  role_name = "alfie-sqs_read_sqs_email"
+
+  role_policy_arns = {
+    SQS_READ_POLICY = aws_iam_policy.sqs_read.arn,
+    SES_WRITE_POLICY = aws_iam_policy.ses_email.arn,
+    BEDROCK_POLICY = aws_iam_policy.bedrock_invoke.arn,
+  }
+
+  oidc_providers = {
+    one = {
+      provider_arn               = var.oidc_provider_arn
+      namespace_service_accounts = ["alfie:sqs-read-sqs-email"]
+    }
+  }
+}
+
+
 module "iam_eks_role_sqs_read" {
   source    = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
   role_name = "alfie-sqs_role_read"
 
   role_policy_arns = {
-    AmazonEKS_CNI_Policy = aws_iam_policy.sqs_read.arn
+    SQS_READ_POLICY = aws_iam_policy.sqs_read.arn,
+    BEDROCK_POLICY = aws_iam_policy.bedrock_invoke.arn
   }
 
   oidc_providers = {
